@@ -1,2 +1,39 @@
-Career Guidance System is software that helps users choose suitable career paths based on their skills, interests, and qualifications. It provides recommendations, job insights, and educational guidance, helping students and professionals make informed decisions about their future careers efficiently.
-A Career Guidance System is software that helps individuals choose suitable career paths based on their skills, interests, and educational background. It collects user data through questionnaires or assessments and analyzes it to provide personalized career recommendations. The system also offers detailed information about various job roles, required qualifications, salary expectations, and future growth opportunities. It may include features like resume building, skill development suggestions, and job matching. This software is useful for students, graduates, and professionals who are confused about their career choices, helping them make informed, confident, and goal-oriented decisions for a successful future.
+# PathFinder — Career Guidance System
+
+## Setup & Run
+
+### 1. Install dependencies
+```bash
+npm install express cors bcryptjs jsonwebtoken
+```
+
+### 2. Start the backend
+```bash
+node server.js
+```
+Backend runs at http://localhost:3000
+
+### 3. Open the frontend
+Open `index.html` in your browser (just double-click it).
+
+## Features
+- **Register / Login** with JWT authentication
+- **10-question** career assessment quiz
+- **AI analysis** via Anthropic Claude (add your API key in the quiz)
+- **Offline fallback** when no API key is provided
+- **Save reports** to your account (last 10 reports stored)
+- **Dashboard** to view and manage past reports
+
+## API Endpoints
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | /api/health | No | Server status |
+| POST | /api/auth/register | No | Create account |
+| POST | /api/auth/login | No | Login |
+| GET | /api/auth/me | Yes | Get profile |
+| POST | /api/analyse | Yes | Run career analysis |
+| GET | /api/reports | Yes | Get saved reports |
+| DELETE | /api/reports/:id | Yes | Delete a report |
+
+## Get API Key
+Visit https://console.anthropic.com to get a free Anthropic API key.

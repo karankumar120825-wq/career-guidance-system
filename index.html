@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title> Career Guidance</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f2eb;
+    --amber: #e8a020;
+    --amber-light: #ffd97d;
+    --teal: #0f8c7a;
+    --teal-light: #1dbfa8;
+    --coral: #e84545;
+    --muted: #7a7570;
+    --border: rgba(10,10,15,0.12);
+    --card: rgba(255,255,255,0.7);
+    --shadow: 0 4px 32px rgba(10,10,15,0.10);
+    --r: 14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(232,160,32,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 20% 80%, rgba(15,140,122,0.10) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+ 
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(245,242,235,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.3rem;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+  }
+  .nav-logo span { color: var(--amber); }
+  .nav-right { display: flex; gap: 10px; align-items: center; }
+  .nav-user { font-size: 0.85rem; color: var(--muted); }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.88rem; letter-spacing: 0.3px;
+    padding: 10px 22px; border: none; border-radius: 50px; cursor: pointer;
+    transition: all 0.2s ease; outline: none;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: #1a1a2e; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,10,15,0.22); }
+  .btn-amber { background: var(--amber); color: #fff; }
+  .btn-amber:hover { background: #d4901a; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,160,32,0.35); }
+  .btn-teal { background: var(--teal); color: #fff; }
+  .btn-teal:hover { background: #0a6e5e; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-ghost:hover { background: var(--ink); color: #fff; }
+  .btn-sm { padding: 7px 16px; font-size: 0.82rem; }
+  .btn-lg { padding: 14px 34px; font-size: 1rem; border-radius: 50px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  
+  .container { max-width: 680px; margin: 0 auto; padding: 100px 24px 60px; }
+  .container-wide { max-width: 960px; margin: 0 auto; padding: 100px 24px 60px; }
+
+  
+  #screen-home .hero {
+    text-align: center; padding: 60px 0 40px;
+  }
+  .hero-badge {
+    display: inline-block; background: rgba(232,160,32,0.15); color: var(--amber);
+    border: 1px solid rgba(232,160,32,0.3); border-radius: 50px;
+    padding: 5px 16px; font-size: 0.78rem; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2.4rem, 6vw, 3.8rem); line-height: 1.1;
+    letter-spacing: -1.5px; margin-bottom: 18px;
+  }
+  .hero h1 em { font-style: normal; color: var(--teal); }
+  .hero p { font-size: 1.05rem; color: var(--muted); max-width: 420px; margin: 0 auto 32px; line-height: 1.65; }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .features {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 60px;
+  }
+  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+  .feature-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 22px 18px; backdrop-filter: blur(8px);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .feature-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .feat-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .feat-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .feat-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+
+  .auth-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 40px 36px; backdrop-filter: blur(12px); box-shadow: var(--shadow);
+    max-width: 420px; margin: 0 auto;
+  }
+  .auth-title {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem;
+    margin-bottom: 6px; letter-spacing: -0.5px;
+  }
+  .auth-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 6px; color: var(--ink); }
+  .form-input {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+    background: rgba(255,255,255,0.8); color: var(--ink); transition: border 0.2s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--teal); }
+  .form-input.error { border-color: var(--coral); }
+  .form-error { font-size: 0.8rem; color: var(--coral); margin-top: 4px; }
+  .auth-switch { text-align: center; margin-top: 20px; font-size: 0.88rem; color: var(--muted); }
+  .auth-switch a { color: var(--teal); cursor: pointer; font-weight: 600; }
+  .auth-switch a:hover { text-decoration: underline; }
+  .btn-full { width: 100%; justify-content: center; margin-top: 4px; padding: 13px; border-radius: 12px; }
+
+ 
+  .alert {
+    padding: 12px 16px; border-radius: 10px; font-size: 0.87rem; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .alert-error { background: rgba(232,69,69,0.1); border: 1px solid rgba(232,69,69,0.25); color: #c0392b; }
+  .alert-success { background: rgba(15,140,122,0.1); border: 1px solid rgba(15,140,122,0.25); color: var(--teal); }
+
+  
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: gap; gap: 12px; }
+  .dash-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.9rem; letter-spacing: -0.5px; }
+  .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 22px 20px; backdrop-filter: blur(8px);
+  }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--teal); }
+  .stat-label { font-size: 0.83rem; color: var(--muted); margin-top: 2px; }
+  .dash-action { background: linear-gradient(135deg, var(--ink) 0%, #1e1e35 100%); color: #fff; border-radius: var(--r); padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+  .dash-action-text h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; margin-bottom: 4px; }
+  .dash-action-text p { font-size: 0.85rem; opacity: 0.7; }
+  .reports-list { display: flex; flex-direction: column; gap: 12px; }
+  .report-item {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px; backdrop-filter: blur(8px); cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .report-item:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(15,140,122,0.12); }
+  .report-stream { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+  .report-date { font-size: 0.8rem; color: var(--muted); }
+  .report-actions { display: flex; gap: 8px; }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+ 
+  .quiz-progress { margin-bottom: 28px; }
+  .progress-bar-wrap { height: 5px; background: var(--border); border-radius: 50px; margin-top: 8px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--amber)); border-radius: 50px; transition: width 0.4s ease; }
+  .progress-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+  .quiz-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 34px 30px; backdrop-filter: blur(12px); box-shadow: var(--shadow);
+  }
+  .q-num { font-size: 0.78rem; font-weight: 600; color: var(--amber); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .q-text { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; line-height: 1.4; margin-bottom: 22px; }
+  .q-hint { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px;
+    background: rgba(255,255,255,0.5); cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--ink);
+    transition: all 0.18s; width: 100%;
+  }
+  .option-btn:hover { border-color: var(--teal); background: rgba(15,140,122,0.06); }
+  .option-btn.selected { border-color: var(--teal); background: rgba(15,140,122,0.12); }
+  .option-btn.selected .opt-letter { background: var(--teal); color: #fff; }
+  .opt-letter {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.8rem;
+    flex-shrink: 0; transition: all 0.18s;
+  }
+  .range-wrap { margin: 8px 0 20px; }
+  .range-input { width: 100%; accent-color: var(--teal); height: 6px; cursor: pointer; }
+  .range-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+  .range-val { text-align: center; font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--teal); margin: 8px 0; }
+  .text-area {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--ink);
+    background: rgba(255,255,255,0.8); resize: vertical; min-height: 90px; outline: none;
+    transition: border 0.2s;
+  }
+  .text-area:focus { border-color: var(--teal); }
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .api-section {
+    background: rgba(232,160,32,0.08); border: 1px solid rgba(232,160,32,0.2);
+    border-radius: 12px; padding: 16px; margin-bottom: 20px;
+  }
+  .api-section label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--amber); margin-bottom: 8px; }
+
+  
+  .result-header { text-align: center; margin-bottom: 28px; padding: 28px 20px; }
+  .result-badge { display: inline-block; background: rgba(15,140,122,0.15); color: var(--teal); border: 1px solid rgba(15,140,122,0.3); border-radius: 50px; padding: 5px 16px; font-size: 0.78rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .result-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.9rem; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .result-content {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 30px; backdrop-filter: blur(12px); box-shadow: var(--shadow);
+    white-space: pre-wrap; font-size: 0.92rem; line-height: 1.75;
+    font-family: 'DM Sans', sans-serif; color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .result-content strong, .result-content b { color: var(--teal); }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .loading-spinner { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 20px; }
+  .spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--muted); font-size: 1rem; }
+
+ 
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(10,10,15,0.55); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--paper); border: 1px solid var(--border); border-radius: 20px; padding: 30px; max-width: 680px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,10,15,0.2); }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; }
+  .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); padding: 4px; border-radius: 6px; }
+  .modal-close:hover { background: var(--border); }
+  .modal-body { white-space: pre-wrap; font-size: 0.9rem; line-height: 1.75; color: var(--ink); }
+
+ 
+  .tag { display: inline-block; background: rgba(15,140,122,0.1); color: var(--teal); border: 1px solid rgba(15,140,122,0.2); border-radius: 50px; padding: 3px 12px; font-size: 0.78rem; font-weight: 600; }
+
+  
+  .multi-hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; font-style: italic; }
+  .option-btn.selected { border-color: var(--amber); background: rgba(232,160,32,0.09); }
+  .option-btn.selected .opt-letter { background: var(--amber); color: #fff; }
+
+  
+  .footer { text-align: center; padding: 20px; font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--border); margin-top: 40px; }
+
+  
+  @keyframes fadeUp { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.4s ease both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">Path<span>Finder</span></div>
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user-display"></span>
+    <button class="btn btn-ghost btn-sm" id="btn-nav-login" onclick="showLogin()">Login</button>
+    <button class="btn btn-primary btn-sm" id="btn-nav-register" onclick="showRegister()">Register</button>
+    <button class="btn btn-ghost btn-sm" id="btn-nav-logout" style="display:none" onclick="logout()">Logout</button>
+    <button class="btn btn-amber btn-sm" id="btn-nav-dash" style="display:none" onclick="showDash()">Dashboard</button>
+  </div>
+</nav>
+<div id="screen-home" class="screen active">
+  <div class="container">
+    <div class="hero fade-up">
+      <div class="hero-badge">🇮🇳 Career Guidance for Indian Students</div>
+      <h1>Discover Your<br/><em>Career Path</em><br/>After 12th</h1>
+      <p>Answer 10 questions and get a personalised AI-powered career blueprint tailored for you.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary btn-lg" onclick="startQuiz()">Start Assessment →</button>
+        <button class="btn btn-ghost btn-lg" onclick="showLogin()">Sign In</button>
+      </div>
+    </div>
+    <div class="features fade-up delay-2">
+      <div class="feature-card">
+        <div class="feat-icon">🎯</div>
+        <div class="feat-title">10-Question Quiz</div>
+        <div class="feat-desc">Smart assessment covering your stream, skills, interests & goals.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🤖</div>
+        <div class="feat-title">AI Analysis</div>
+        <div class="feat-desc">Claude AI generates your personalised career blueprint in seconds.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">Save Reports</div>
+        <div class="feat-desc">Register to save all your career reports and track your journey.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="screen-login" class="screen">
+  <div class="container">
+    <div class="auth-card fade-up">
+      <div class="auth-title">Welcome back 👋</div>
+      <div class="auth-sub">Login to access your career reports</div>
+      <div id="login-alert"></div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="login-username" class="form-input" placeholder="yourname" autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-login" onclick="doLogin()">Login →</button>
+      <div class="auth-switch">
+        Don't have an account? <a onclick="showRegister()">Register free</a>
+      </div>
+      <div class="auth-switch" style="margin-top:10px">
+        <a onclick="startQuiz()">Continue without account →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-register" class="screen">
+  <div class="container">
+    <div class="auth-card fade-up">
+      <div class="auth-title">Create account 🚀</div>
+      <div class="auth-sub">Free forever — save unlimited career reports</div>
+      <div id="register-alert"></div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="reg-username" class="form-input" placeholder="yourname" autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="reg-email" class="form-input" placeholder="you@email.com" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="reg-password" class="form-input" placeholder="Min 6 characters" autocomplete="new-password"/>
+      </div>
+      <button class="btn btn-amber btn-full" id="btn-register" onclick="doRegister()">Create Account →</button>
+      <div class="auth-switch">
+        Already have an account? <a onclick="showLogin()">Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="screen-dash" class="screen">
+  <div class="container-wide">
+    <div class="dash-header">
+      <div class="dash-title" id="dash-greeting">Your Dashboard</div>
+    </div>
+    <div class="dash-cards" id="dash-stats"></div>
+    <div class="dash-action">
+      <div class="dash-action-text">
+        <h3>Ready for a new assessment?</h3>
+        <p>Get updated career guidance as your interests evolve</p>
+      </div>
+      <button class="btn btn-amber" onclick="startQuiz()">Start New Quiz →</button>
+    </div>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:14px;">Saved Reports</h3>
+    <div class="reports-list" id="reports-list"></div>
+  </div>
+</div>
+<div id="screen-quiz" class="screen">
+  <div class="container">
+    <div class="quiz-progress fade-up">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;">Career Assessment</span>
+        <span id="q-counter" style="font-size:0.82rem;color:var(--muted)"></span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="quiz-card fade-up delay-1" id="quiz-card">
+    
+    </div>
+  </div>
+</div>
+<div id="screen-result" class="screen">
+  <div class="container">
+    <div class="result-header fade-up">
+      <div class="result-badge" id="result-mode-badge">AI Analysis</div>
+      <div class="result-title">Your Career Blueprint ✦</div>
+    </div>
+    <div id="result-loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">Generating your personalised career blueprint…</div>
+    </div>
+    <div id="result-body" style="display:none">
+      <div class="result-content fade-up" id="result-text"></div>
+      <div class="result-actions fade-up delay-1">
+        <button class="btn btn-teal" onclick="startQuiz()">Take Quiz Again</button>
+        <button class="btn btn-ghost" onclick="showDash()" id="btn-goto-dash" style="display:none">View Dashboard</button>
+        <button class="btn btn-primary" onclick="showHome()">← Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-bg" id="modal-report">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Career Report</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="footer">PathFinder — Career Guidance System &nbsp;|&nbsp; Built by Karan</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+let token = localStorage.getItem('pf_token') || '';
+let currentUser = JSON.parse(localStorage.getItem('pf_user') || 'null');
+let answers = {};
+let currentQ = 0;
+let apiKeyForQuiz = '';
+const QUESTIONS = [
+  {
+    id: 'stream', type: 'single',
+    text: 'Which stream did you study in Class 12?',
+    options: [
+      { label: 'Science (PCM) — Physics, Chemistry, Maths', value: 'PCM' },
+      { label: 'Science (PCB) — Physics, Chemistry, Biology', value: 'PCB' },
+      { label: 'Commerce — Accountancy, Business Studies, Economics', value: 'Commerce' },
+      { label: 'Arts / Humanities — History, Polity, Sociology', value: 'Arts' }
+    ]
+  },
+  {
+    id: 'subject', type: 'single',
+    text: 'Which subject do you enjoy the most?',
+    options: [
+      { label: 'Mathematics & Logic', value: 'Maths' },
+      { label: 'Science & Biology', value: 'Science' },
+      { label: 'Economics & Business', value: 'Economics' },
+      { label: 'Literature, History & Social Sciences', value: 'Humanities' }
+    ]
+  },
+  {
+    id: 'interests', type: 'multi',
+    text: 'What areas genuinely excite you?',
+    hint: 'Select all that apply',
+    options: [
+      { label: 'Technology & Coding', value: 'tech' },
+      { label: 'Medicine & Healthcare', value: 'medicine' },
+      { label: 'Art, Design & Creativity', value: 'art' },
+      { label: 'Business, Finance & Entrepreneurship', value: 'business' },
+      { label: 'Law & Justice', value: 'law' },
+      { label: 'Teaching & Social Work', value: 'education' },
+      { label: 'Nature & Environment', value: 'environment' },
+      { label: 'Media & Communication', value: 'media' }
+    ]
+  },
+  {
+    id: 'work_style', type: 'single',
+    text: 'How do you prefer to work?',
+    options: [
+      { label: 'Alone — deep focus, independent projects', value: 'solo' },
+      { label: 'In small teams — collaboration and creativity', value: 'small_team' },
+      { label: 'With the public — helping or serving people', value: 'public' },
+      { label: 'Outdoors / on-the-field — not desk-bound', value: 'field' }
+    ]
+  },
+  {
+    id: 'skills', type: 'multi',
+    text: 'What are your strongest skills?',
+    hint: 'Select all that apply',
+    options: [
+      { label: 'Analytical & Problem-solving', value: 'analytical' },
+      { label: 'Communication & Persuasion', value: 'communication' },
+      { label: 'Creative & Artistic thinking', value: 'creative' },
+      { label: 'Empathy & Emotional intelligence', value: 'empathy' },
+      { label: 'Leadership & Decision-making', value: 'leadership' },
+      { label: 'Technical & Hands-on skills', value: 'technical' }
+    ]
+  },
+  {
+    id: 'salary_passion', type: 'range',
+    text: 'Salary vs Passion — what matters more?',
+    hint: '1 = Pure Passion  |  10 = High Salary',
+    min: 1, max: 10, def: 5
+  },
+  {
+    id: 'study_years', type: 'single',
+    text: 'How many more years are you willing to study?',
+    options: [
+      { label: 'Up to 2 years — diploma or short courses', value: '2' },
+      { label: '3–4 years — standard undergraduate degree', value: '3-4' },
+      { label: '5–6 years — professional degree (MBBS, B.Arch)', value: '5-6' },
+      { label: '7+ years — postgraduate or research career', value: '7+' }
+    ]
+  },
+  {
+    id: 'location', type: 'single',
+    text: 'Where do you plan to pursue your career?',
+    options: [
+      { label: 'India — Tier 1 cities (Mumbai, Delhi, Bangalore)', value: 'india_t1' },
+      { label: 'India — Tier 2 / hometown', value: 'india_t2' },
+      { label: 'Abroad — USA, UK, Canada, Australia', value: 'abroad' },
+      { label: 'Open to anywhere — flexible', value: 'flexible' }
+    ]
+  },
+  {
+    id: 'role_model', type: 'single',
+    text: 'Which type of person inspires you most?',
+    options: [
+      { label: 'A scientist or researcher changing the world', value: 'scientist' },
+      { label: 'A CEO or entrepreneur building companies', value: 'entrepreneur' },
+      { label: 'A doctor or social worker helping communities', value: 'helper' },
+      { label: 'An artist or creator leaving a cultural legacy', value: 'creator' }
+    ]
+  },
+  {
+    id: 'biggest_fear', type: 'text',
+    text: 'What is your biggest worry about choosing a career?',
+    hint: 'e.g. job security, parental pressure, competition...'
+  }
+];
+
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function showHome() { showScreen('home'); }
+function showLogin() { showScreen('login'); }
+function showRegister() { showScreen('register'); }
+
+function showDash() {
+  if (!token) { showLogin(); return; }
+  showScreen('dash');
+  loadDash();
+}
+
+function updateNav() {
+  const loggedIn = !!token;
+  document.getElementById('btn-nav-login').style.display = loggedIn ? 'none' : '';
+  document.getElementById('btn-nav-register').style.display = loggedIn ? 'none' : '';
+  document.getElementById('btn-nav-logout').style.display = loggedIn ? '' : 'none';
+  document.getElementById('btn-nav-dash').style.display = loggedIn ? '' : 'none';
+  document.getElementById('nav-user-display').textContent = loggedIn ? `Hi, ${currentUser?.username}` : '';
+}
+
+function logout() {
+  token = ''; currentUser = null;
+  localStorage.removeItem('pf_token'); localStorage.removeItem('pf_user');
+  updateNav(); showHome();
+}
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const alertEl = document.getElementById('login-alert');
+  const btn = document.getElementById('btn-login');
+
+  alertEl.innerHTML = '';
+  if (!username || !password) {
+    alertEl.innerHTML = '<div class="alert alert-error">⚠ Please fill all fields</div>'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Logging in…';
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    token = data.token;
+    currentUser = { username: data.username, email: data.email };
+    localStorage.setItem('pf_token', token);
+    localStorage.setItem('pf_user', JSON.stringify(currentUser));
+    updateNav();
+    alertEl.innerHTML = `<div class="alert alert-success">✔ ${data.message}</div>`;
+    setTimeout(() => showDash(), 800);
+  } catch(e) {
+    alertEl.innerHTML = `<div class="alert alert-error">✘ ${e.message}</div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Login →';
+}
+
+async function doRegister() {
+  const username = document.getElementById('reg-username').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const alertEl = document.getElementById('register-alert');
+  const btn = document.getElementById('btn-register');
+
+  alertEl.innerHTML = '';
+  if (!username || !email || !password) {
+    alertEl.innerHTML = '<div class="alert alert-error">⚠ All fields required</div>'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Registration failed');
+    token = data.token;
+    currentUser = { username: data.username, email: data.email };
+    localStorage.setItem('pf_token', token);
+    localStorage.setItem('pf_user', JSON.stringify(currentUser));
+    updateNav();
+    alertEl.innerHTML = `<div class="alert alert-success">✔ ${data.message}</div>`;
+    setTimeout(() => showDash(), 800);
+  } catch(e) {
+    alertEl.innerHTML = `<div class="alert alert-error">✘ ${e.message}</div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Create Account →';
+}
+
+async function loadDash() {
+  document.getElementById('dash-greeting').textContent = `Welcome back, ${currentUser?.username || 'there'} 👋`;
+  document.getElementById('dash-stats').innerHTML = '<div class="stat-card"><div class="spinner" style="width:24px;height:24px;margin:auto"></div></div>';
+
+  try {
+    const res = await fetch(`${API}/reports`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    const reports = data.reports || [];
+
+    document.getElementById('dash-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-num">${reports.length}</div><div class="stat-label">Total Reports</div></div>
+      <div class="stat-card"><div class="stat-num">${reports.length > 0 ? new Date(reports[0].date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—'}</div><div class="stat-label">Last Assessment</div></div>
+      <div class="stat-card"><div class="stat-num">${reports.filter(r=>r.stream).map(r=>r.stream)[0]||'—'}</div><div class="stat-label">Latest Stream</div></div>
+    `;
+
+    const listEl = document.getElementById('reports-list');
+    if (reports.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>No reports yet.<br/>Take your first assessment!</p></div>';
+    } else {
+      listEl.innerHTML = reports.map(r => `
+        <div class="report-item" onclick="openReport('${r.id}')">
+          <div>
+            <div class="report-stream">${r.stream || 'Assessment'}</div>
+            <div class="report-date">${new Date(r.date).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn btn-teal btn-sm" onclick="event.stopPropagation();openReport('${r.id}')">View</button>
+            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteReport('${r.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+      window._reports = reports;
+    }
+  } catch(e) {
+    document.getElementById('dash-stats').innerHTML = '<div class="alert alert-error" style="max-width:300px">Could not load data. Is the backend running?</div>';
+  }
+}
+
+function openReport(id) {
+  const r = (window._reports||[]).find(x=>x.id===id);
+  if (!r) return;
+  document.getElementById('modal-title').textContent = `Report — ${r.stream || ''} (${new Date(r.date).toLocaleDateString('en-IN')})`;
+  document.getElementById('modal-body').textContent = r.result || '';
+  document.getElementById('modal-report').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal-report').classList.remove('open'); }
+
+async function deleteReport(id) {
+  if (!confirm('Delete this report?')) return;
+  await fetch(`${API}/reports/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+  loadDash();
+}
+function startQuiz() {
+  answers = {}; currentQ = 0;
+  showScreen('quiz');
+  renderApiKeyScreen();
+}
+function renderApiKeyScreen() {
+  const card = document.getElementById('quiz-card');
+  card.innerHTML = `
+    <div class="q-num">Setup</div>
+    <div class="q-text">Add your Anthropic API key for AI-powered analysis</div>
+    <div class="api-section">
+      <label>🔑 Anthropic API Key (optional)</label>
+      <input type="password" id="quiz-api-key" class="form-input" placeholder="sk-ant-... (leave blank for offline mode)"/>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:6px">Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--teal)">console.anthropic.com</a></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" onclick="showHome()">← Back</button>
+      <button class="btn btn-amber" onclick="confirmApiKey()">Start Quiz →</button>
+    </div>
+  `;
+  document.getElementById('q-counter').textContent = 'Setup';
+  document.getElementById('progress-fill').style.width = '0%';
+}
+
+function confirmApiKey() {
+  apiKeyForQuiz = document.getElementById('quiz-api-key')?.value?.trim() || '';
+  renderQuestion();
+}
+
+const multiSelected = {};
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const card = document.getElementById('quiz-card');
+  const pct = Math.round((currentQ / QUESTIONS.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Question ${currentQ + 1} of ${QUESTIONS.length}`;
+
+  if (!multiSelected[q.id]) multiSelected[q.id] = new Set();
+
+  let inner = `
+    <div class="q-num">Question ${currentQ + 1}</div>
+    <div class="q-text">${q.text}</div>
+  `;
+
+  if (q.type === 'single') {
+    inner += '<div class="options">' + q.options.map((o, i) => `
+      <button class="option-btn ${answers[q.id]===o.value?'selected':''}" onclick="selectSingle('${q.id}','${o.value}',this)">
+        <div class="opt-letter">${String.fromCharCode(65+i)}</div>
+        <span>${o.label}</span>
+      </button>
+    `).join('') + '</div>';
+    inner += `<div class="quiz-nav">
+      ${currentQ > 0 ? '<button class="btn btn-ghost" onclick="prevQ()">← Back</button>' : '<span></span>'}
+      <button class="btn btn-amber" id="q-next-btn" onclick="nextQ()" ${!answers[q.id]?'disabled':''}>Next →</button>
+    </div>`;
+  } else if (q.type === 'multi') {
+    inner += `<div class="q-hint">Select all that apply — choose at least one</div>`;
+    inner += '<div class="options">' + q.options.map((o, i) => `
+      <button class="option-btn ${multiSelected[q.id].has(o.value)?'selected':''}" onclick="toggleMulti('${q.id}','${o.value}',this)">
+        <div class="opt-letter">${String.fromCharCode(65+i)}</div>
+        <span>${o.label}</span>
+      </button>
+    `).join('') + '</div>';
+    inner += `<div class="quiz-nav">
+      ${currentQ > 0 ? '<button class="btn btn-ghost" onclick="prevQ()">← Back</button>' : '<span></span>'}
+      <button class="btn btn-amber" id="q-next-btn" onclick="nextQ()" ${multiSelected[q.id].size===0?'disabled':''}>Next →</button>
+    </div>`;
+  } else if (q.type === 'range') {
+    const val = answers[q.id] || q.def;
+    inner += `
+      <div class="q-hint">${q.hint}</div>
+      <div class="range-val" id="range-display">${val}</div>
+      <div class="range-wrap">
+        <input type="range" class="range-input" id="range-${q.id}" min="${q.min}" max="${q.max}" value="${val}"
+          oninput="document.getElementById('range-display').textContent=this.value"/>
+        <div class="range-labels"><span>Pure Passion 💚</span><span>High Salary 💰</span></div>
+      </div>`;
+    inner += `<div class="quiz-nav">
+      ${currentQ > 0 ? '<button class="btn btn-ghost" onclick="prevQ()">← Back</button>' : '<span></span>'}
+      <button class="btn btn-amber" onclick="nextQ()">Next →</button>
+    </div>`;
+  } else if (q.type === 'text') {
+    inner += `
+      <div class="q-hint">${q.hint}</div>
+      <textarea class="text-area" id="text-${q.id}" placeholder="Type your answer here…" rows="4">${answers[q.id]||''}</textarea>`;
+    inner += `<div class="quiz-nav">
+      ${currentQ > 0 ? '<button class="btn btn-ghost" onclick="prevQ()">← Back</button>' : '<span></span>'}
+      <button class="btn btn-amber" onclick="nextQ()">Analyse My Career →</button>
+    </div>`;
+  }
+
+  card.innerHTML = inner;
+  card.classList.remove('fade-up');
+  void card.offsetWidth;
+  card.classList.add('fade-up');
+}
+
+function selectSingle(id, value, btn) {
+  answers[id] = value;
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const letter = btn.querySelector('.opt-letter');
+  document.querySelectorAll('.opt-letter').forEach(l => { l.style.background=''; l.style.color=''; });
+  letter.style.background = 'var(--teal)'; letter.style.color = '#fff';
+  const nextBtn = document.getElementById('q-next-btn');
+  if (nextBtn) nextBtn.disabled = false;
+}
+
+function toggleMulti(id, value, btn) {
+  if (!multiSelected[id]) multiSelected[id] = new Set();
+  if (multiSelected[id].has(value)) {
+    multiSelected[id].delete(value);
+    btn.classList.remove('selected');
+    btn.querySelector('.opt-letter').style.background = '';
+    btn.querySelector('.opt-letter').style.color = '';
+  } else {
+    multiSelected[id].add(value);
+    btn.classList.add('selected');
+    btn.querySelector('.opt-letter').style.background = 'var(--amber)';
+    btn.querySelector('.opt-letter').style.color = '#fff';
+  }
+  answers[id] = Array.from(multiSelected[id]).join(', ');
+  const nextBtn = document.getElementById('q-next-btn');
+  if (nextBtn) nextBtn.disabled = multiSelected[id].size === 0;
+}
+
+function nextQ() {
+  const q = QUESTIONS[currentQ];
+  
+  if (q.type === 'range') {
+    answers[q.id] = document.getElementById(`range-${q.id}`)?.value || q.def;
+  } else if (q.type === 'text') {
+    const val = document.getElementById(`text-${q.id}`)?.value?.trim() || '';
+    if (val.length < 5) { alert('Please write at least a few words.'); return; }
+    answers[q.id] = val;
+  } else if (q.type === 'multi' && (!answers[q.id] || answers[q.id] === '')) {
+    alert('Please select at least one option.'); return;
+  } else if (q.type === 'single' && !answers[q.id]) {
+    alert('Please select an option.'); return;
+  }
+
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++; renderQuestion();
+  } else {
+    submitQuiz();
+  }
+}
+
+function prevQ() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+async function submitQuiz() {
+  showScreen('result');
+  document.getElementById('result-loading').style.display = 'flex';
+  document.getElementById('result-body').style.display = 'none';
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    let result, mode;
+    if (token) {
+      const res = await fetch(`${API}/analyse`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ answers, apiKey: apiKeyForQuiz })
+      });
+      const data = await res.json();
+      result = data.result; mode = data.mode;
+    } else {
+      result = offlineResult(answers); mode = 'offline';
+    }
+
+    document.getElementById('result-loading').style.display = 'none';
+    document.getElementById('result-body').style.display = 'block';
+    document.getElementById('result-text').textContent = result;
+    document.getElementById('result-mode-badge').textContent = mode === 'ai' ? '🤖 AI Analysis' : '📋 Offline Analysis';
+    if (token) document.getElementById('btn-goto-dash').style.display = '';
+  } catch(e) {
+    document.getElementById('result-loading').style.display = 'none';
+    document.getElementById('result-body').style.display = 'block';
+    document.getElementById('result-text').textContent = offlineResult(answers);
+    document.getElementById('result-mode-badge').textContent = '📋 Offline Analysis';
+  }
+}
+function offlineResult(a) {
+  const stream = a.stream || '';
+  let career1, career2, career3, exams;
+  if (stream === 'PCM') {
+    career1='Software Engineer'; career2='Data Scientist'; career3='Civil Engineer'; exams='JEE Main, JEE Advanced, BITSAT';
+  } else if (stream === 'PCB') {
+    career1='Doctor (MBBS)'; career2='Pharmacist'; career3='Biomedical Researcher'; exams='NEET-UG, AIIMS';
+  } else if (stream === 'Commerce') {
+    career1='Chartered Accountant'; career2='MBA / Business Analyst'; career3='Investment Banker'; exams='CA Foundation (ICAI), CAT, XAT';
+  } else {
+    career1='Lawyer / Advocate'; career2='Journalist / Media Professional'; career3='Civil Services (IAS/IPS)'; exams='CLAT, AILET, UPSC CSE';
+  }
+  return `TOP 3 CAREER MATCHES\n\n★ #1  ${career1}\nGreat fit based on your ${stream||'chosen'} background.\nExams: ${exams}\nSalary: ₹6–25 LPA\n\n★ #2  ${career2}\nMatches your interests: ${a.interests||'varied'}\nSalary: ₹5–20 LPA\n\n★ #3  ${career3}\nA strong alternative path.\nSalary: ₹4–18 LPA\n\nSTEP-BY-STEP ROADMAP\n\n1. NOW       → Research entrance exams for your top choice\n2. YEAR 1-2  → Prepare & appear for entrance exams\n3. YEAR 2-4  → Complete undergraduate degree + internships\n4. YEAR 5+   → Specialise, build experience, launch career\n\nPERSONAL ADVICE\n\nYou've made a great start by taking this assessment. The fact that you're thinking carefully about your career puts you ahead of most students.\n\nYour chosen stream opens multiple doors. Focus on your strengths and stay consistent.\n\nTip: Login with an API key to get a full personalised AI analysis tailored to your exact profile!`;
+}
+updateNav();
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const active = document.querySelector('.screen.active')?.id;
+    if (active === 'screen-login') doLogin();
+    else if (active === 'screen-register') doRegister();
+  }
+});
+document.getElementById('modal-report').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+</script>
+</body>
+</html>
